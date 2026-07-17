@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Download Empire Meet — Desktop</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .dl-wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 80px; position: relative; z-index: 1; }
+    .dl-head { text-align: center; margin-bottom: 8px; }
+    .dl-sub { text-align: center; color: var(--muted, #9aa0b4); max-width: 640px; margin: 0 auto 32px; line-height: 1.55; }
+    .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin: 28px 0; }
+    .dl-card { background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column; gap: 14px; backdrop-filter: blur(12px); transition: border-color .2s, transform .2s; }
+    .dl-card.recommended { border-color: rgba(109,108,246,0.6); box-shadow: 0 0 0 1px rgba(109,108,246,0.35), 0 20px 60px -20px rgba(109,108,246,0.5); }
+    .dl-os { display: flex; align-items: center; gap: 12px; }
+    .dl-os .ico { font-size: 30px; }
+    .dl-os h3 { margin: 0; font-size: 19px; }
+    .dl-os .note { font-size: 12.5px; color: var(--muted, #9aa0b4); }
+    .dl-badge { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #cdd; background: rgba(109,108,246,0.22); border: 1px solid rgba(109,108,246,0.5); padding: 3px 9px; border-radius: 999px; }
+    .dl-btns { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+    .dl-btns .btn { width: 100%; justify-content: center; }
+    .btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .dl-soon { font-size: 12.5px; color: var(--muted, #9aa0b4); text-align: center; }
+    .dl-why { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 22px 24px; margin-top: 28px; }
+    .dl-why h4 { margin: 0 0 12px; font-size: 15px; }
+    .dl-why ol { margin: 0; padding-left: 20px; line-height: 1.7; color: var(--muted, #c6cbdc); font-size: 14px; }
+    .dl-why code { background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 6px; font-size: 12.5px; }
+    .dl-foot { text-align: center; margin-top: 30px; }
+    .dl-back { color: var(--muted, #9aa0b4); text-decoration: none; font-size: 14px; }
+    .dl-back:hover { color: #fff; }
+    .dl-note { font-size: 12.5px; color: var(--muted, #9aa0b4); text-align:center; margin-top:8px; }
+  </style>
+</head>
+<body class="landing">
+  <div class="aurora"></div>
+
+  <div class="dl-wrap">
+    <div class="brand dl-head" style="justify-content:center">
+      <span class="brand-mark">◈</span>
+      <div>
+        <h1 class="grad-text" style="margin:0">Empire Meet for Desktop</h1>
+      </div>
+    </div>
+    <p class="dl-sub">
+      The desktop app adds what a browser tab physically can't: <b>real remote control</b>.
+      When you share your screen and approve a request, an invited participant's pointer
+      truly moves your mouse and clicks — the same way Zoom and TeamViewer do it.
+    </p>
+
+    <div id="dl-grid" class="dl-grid">
+      <!-- macOS -->
+      <div class="dl-card" data-os="mac">
+        <div class="dl-os"><span class="ico">🍎</span><div><h3>macOS</h3><div class="note">11 Big Sur or newer</div></div></div>
+        <span class="dl-badge" data-badge hidden>Recommended for you</span>
+        <div class="dl-btns" data-btns>
+          <span class="dl-soon">Checking for builds…</span>
+        </div>
+      </div>
+      <!-- Windows -->
+      <div class="dl-card" data-os="win">
+        <div class="dl-os"><span class="ico">🪟</span><div><h3>Windows</h3><div class="note">10 / 11, 64-bit</div></div></div>
+        <span class="dl-badge" data-badge hidden>Recommended for you</span>
+        <div class="dl-btns" data-btns>
+          <span class="dl-soon">Checking for builds…</span>
+        </div>
+      </div>
+      <!-- Linux -->
+      <div class="dl-card" data-os="linux">
+        <div class="dl-os"><span class="ico">🐧</span><div><h3>Linux</h3><div class="note">AppImage</div></div></div>
+        <span class="dl-badge" data-badge hidden>Recommended for you</span>
+        <div class="dl-btns" data-btns>
+          <span class="dl-soon">Checking for builds…</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-why">
+      <h4>After you install (one-time setup, just like Zoom)</h4>
+      <ol>
+        <li>Open Empire Meet and join or start a meeting.</li>
+        <li><b>macOS:</b> the first time control is used, grant <code>Accessibility</code> + <code>Screen&nbsp;Recording</code> when macOS asks (System Settings › Privacy &amp; Security). <b>Windows:</b> nothing to grant.</li>
+        <li>Share your screen → approve the control request → the other person can really click and type on your machine. Revoke anytime.</li>
+      </ol>
+      <p class="dl-note">Unsigned build: on first open, right-click the app → <b>Open</b> (macOS) or “More info → Run anyway” (Windows SmartScreen).</p>
+    </div>
+
+    <div class="dl-foot">
+      <a class="dl-back" href="/">← Back to Empire Meet</a>
+    </div>
+  </div>
+
+  <script>
+    // Detect the visitor's OS to recommend the right build.
+    function detectOS() {
+      const p = (navigator.userAgentData?.platform || navigator.platform || navigator.userAgent || "").toLowerCase();
+      if (p.includes("mac") || p.includes("iphone") || p.includes("ipad")) return "mac";
+      if (p.includes("win")) return "win";
+      if (p.includes("linux") || p.includes("android")) return "linux";
+      return null;
+    }
+    function fmtSize(b) {
+      if (!b) return "";
+      const mb = b / (1024 * 1024);
+      return mb >= 1 ? ` · ${mb.toFixed(0)} MB` : ` · ${(b / 1024).toFixed(0)} KB`;
+    }
+    const LABEL = {
+      mac: (f) => `Download for macOS${f.arch ? " (" + f.arch + ")" : ""}`,
+      win: (f) => f.name.toLowerCase().endsWith(".zip") ? "Download for Windows (portable)" : "Download for Windows",
+      linux: () => "Download AppImage",
+    };
+
+    (async () => {
+      const os = detectOS();
+      let data = { mac: [], win: [], linux: [] };
+      try { data = await fetch("/api/downloads").then((r) => r.json()); } catch {}
+
+      for (const os_ of ["mac", "win", "linux"]) {
+        const card = document.querySelector(`.dl-card[data-os="${os_}"]`);
+        const btns = card.querySelector("[data-btns]");
+        const all = data[os_] || [];
+        const installers = all.filter((f) => !f.name.toLowerCase().endsWith(".zip"));
+        const files = installers.length ? installers : all; // fall back to a portable .zip
+        btns.innerHTML = "";
+        if (files.length) {
+          for (const f of files) {
+            const a = document.createElement("a");
+            a.className = "btn btn-primary";
+            a.href = f.url; a.setAttribute("download", "");
+            a.textContent = LABEL[os_](f) + fmtSize(f.size);
+            btns.appendChild(a);
+          }
+        } else {
+          const s = document.createElement("span");
+          s.className = "dl-soon";
+          s.innerHTML = "Build coming soon — <a href='https://github.com' style='color:inherit;text-decoration:underline' onclick='return false'>ask the host to publish it</a>";
+          btns.appendChild(s);
+        }
+        if (os_ === os) {
+          card.classList.add("recommended");
+          const badge = card.querySelector("[data-badge]");
+          if (badge) badge.hidden = false;
+          card.parentNode.prepend(card); // float the visitor's OS first
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

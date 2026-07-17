@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Empire Meet</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="landing">
+  <div class="aurora"></div>
+  <main class="landing-card">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <div>
+        <h1 class="grad-text">Empire Meet</h1>
+        <p class="tagline">Instant, secure video meetings — generate a link, share it, done.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="new-meeting" class="btn btn-primary btn-lg">
+        <span class="btn-ico">＋</span> New meeting
+      </button>
+      <div class="divider-or">or join one</div>
+      <div class="join-row">
+        <input id="join-code" class="input" placeholder="Enter a meeting code or link" autocomplete="off" />
+        <button id="join-btn" class="btn">Join</button>
+      </div>
+    </div>
+
+    <div id="link-panel" class="link-panel" hidden>
+      <p class="link-label">Your meeting is ready — share this link:</p>
+      <div class="link-row">
+        <input id="meeting-link" class="input link-input" readonly />
+        <button id="copy-link" class="btn">Copy</button>
+      </div>
+      <button id="start-meeting" class="btn btn-primary btn-lg">Start meeting →</button>
+    </div>
+
+    <div class="feature-row">
+      <span class="feature">🖥 <b>Screen share</b></span>
+      <span class="feature">🕹 <b>Remote control</b> (with permission)</span>
+      <span class="feature">💬 <b>Chat</b></span>
+      <span class="feature">✋ <b>Reactions</b></span>
+    </div>
+
+    <a class="download-cta" href="/download.html">🖥 Get the desktop app — real remote control (Mac &amp; Windows) →</a>
+
+    <p class="foot">Anyone with the link can join. Nothing is recorded.</p>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentPath = null;
+
+    $("new-meeting").addEventListener("click", async () => {
+      $("new-meeting").disabled = true;
+      try {
+        const r = await fetch("/api/new-meeting").then((r) => r.json());
+        currentPath = r.path;
+        $("meeting-link").value = location.origin + r.path;
+        $("link-panel").hidden = false;
+        $("meeting-link").focus();
+        $("meeting-link").select();
+      } finally {
+        $("new-meeting").disabled = false;
+      }
+    });
+
+    $("copy-link").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("meeting-link").value);
+        $("copy-link").textContent = "Copied ✓";
+        setTimeout(() => ($("copy-link").textContent = "Copy"), 1500);
+      } catch {
+        $("meeting-link").select();
+        document.execCommand("copy");
+      }
+    });
+
+    $("start-meeting").addEventListener("click", () => { if (currentPath) location.href = currentPath; });
+
+    function joinFrom(value) {
+      value = (value || "").trim();
+      if (!value) return;
+      let code = value;
+      try { if (value.includes("/room/")) code = new URL(value, location.origin).pathname.split("/room/")[1]; } catch {}
+      code = code.replace(/^\/*(room\/)?/, "").split(/[?#]/)[0];
+      if (code) location.href = `/room/${code}`;
+    }
+    $("join-btn").addEventListener("click", () => joinFrom($("join-code").value));
+    $("join-code").addEventListener("keydown", (e) => { if (e.key === "Enter") joinFrom($("join-code").value); });
+  </script>
+</body>
+</html>

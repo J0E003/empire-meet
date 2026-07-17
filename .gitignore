@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Built desktop installers — hosted via GitHub Releases (CI), not committed
+public/downloads/*.dmg
+public/downloads/*.exe
+public/downloads/*.zip
+public/downloads/*.AppImage
+public/downloads/*.blockmap
+public/downloads/mac/
+public/downloads/mac-arm64/
+public/downloads/win-unpacked/
+public/downloads/linux-unpacked/
+desktop/dist/
+desktop/out/
+
+# Logs / OS cruft
+*.log
+.DS_Store
+._*

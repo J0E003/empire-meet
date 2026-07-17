@@ -1,0 +1,14 @@
+{
+  "name": "empire-meet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Empire Meet — standalone multi-party video meetings (mesh WebRTC). Host generates a link; anyone with the link joins. Screen sharing included.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

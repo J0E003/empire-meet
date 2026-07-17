@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Empire Meet — Room</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="room">
+  <div class="aurora"></div>
+
+  <!-- Pre-join -->
+  <section id="prejoin" class="prejoin">
+    <div class="prejoin-card">
+      <div class="brand small"><span class="brand-mark">◈</span><h1 class="grad-text">Empire Meet</h1></div>
+      <div class="preview-wrap">
+        <video id="preview" class="preview" autoplay playsinline muted></video>
+        <div id="preview-off" class="preview-off" hidden>Camera off</div>
+      </div>
+      <div class="prejoin-controls">
+        <button id="pj-mic" class="pill" aria-pressed="true">🎙 Mic on</button>
+        <button id="pj-cam" class="pill" aria-pressed="true">🎥 Cam on</button>
+      </div>
+      <input id="name" class="input" placeholder="Your name" maxlength="60" />
+      <button id="join" class="btn btn-primary btn-lg">Join meeting</button>
+      <p id="prejoin-err" class="err" hidden></p>
+      <p class="foot">Room <code id="room-code"></code></p>
+    </div>
+  </section>
+
+  <!-- Call -->
+  <section id="call" class="call" hidden>
+    <header class="call-header">
+      <span class="brand-mark" style="width:32px;height:32px;font-size:16px;border-radius:10px">◈</span>
+      <span class="live-dot"></span>
+      <span class="meeting-code">Empire Meet · <code id="code2"></code></span>
+      <button id="copy" class="btn btn-sm">Copy link</button>
+      <span class="spacer"></span>
+      <span id="count" class="chip">1</span>
+    </header>
+
+    <div class="stage">
+      <div class="grid-wrap"><div id="grid" class="grid"></div></div>
+
+      <aside id="panel" class="panel" hidden>
+        <div class="panel-tabs">
+          <button class="panel-tab active" data-tab="people">People</button>
+          <button class="panel-tab" data-tab="chat">Chat</button>
+        </div>
+        <div id="tab-people" class="panel-body"></div>
+        <div id="tab-chat" class="panel-body chat-msgs" hidden></div>
+        <div id="chat-input-row" class="chat-input-row" hidden>
+          <input id="chat-input" class="input" placeholder="Message everyone…" maxlength="800" />
+          <button id="chat-send" class="btn">Send</button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="controls">
+      <button id="mic" class="ctrl"><span>🎙</span><span class="lbl">Mute</span></button>
+      <button id="cam" class="ctrl"><span>🎥</span><span class="lbl">Video</span></button>
+      <button id="screen" class="ctrl"><span>🖥</span><span class="lbl">Share</span></button>
+      <button id="control" class="ctrl"><span>🕹</span><span class="lbl">Control</span></button>
+      <button id="react" class="ctrl"><span>😊</span><span class="lbl">React</span></button>
+      <button id="hand" class="ctrl"><span>✋</span><span class="lbl">Hand</span></button>
+      <button id="chat-toggle" class="ctrl"><span>💬</span><span class="lbl">Chat</span></button>
+      <button id="people-toggle" class="ctrl"><span>👥</span><span class="lbl">People</span></button>
+      <button id="leave" class="ctrl ctrl-danger"><span>✕</span><span class="lbl">Leave</span></button>
+    </div>
+
+    <!-- Reaction picker (hidden popover) -->
+    <div id="react-pop" class="modal-scrim" hidden style="align-items:flex-end;padding-bottom:96px;background:transparent;backdrop-filter:none">
+      <div class="modal" style="width:auto;display:flex;gap:8px;padding:12px">
+        <button class="react-emoji btn" data-e="👍">👍</button>
+        <button class="react-emoji btn" data-e="❤️">❤️</button>
+        <button class="react-emoji btn" data-e="😂">😂</button>
+        <button class="react-emoji btn" data-e="🎉">🎉</button>
+        <button class="react-emoji btn" data-e="👏">👏</button>
+        <button class="react-emoji btn" data-e="🔥">🔥</button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+  </section>
+
+  <script src="/room.js"></script>
+</body>
+</html>

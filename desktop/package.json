@@ -1,0 +1,60 @@
+{
+  "name": "empire-meet-desktop",
+  "version": "1.0.0",
+  "description": "Empire Meet desktop — video meetings with REAL remote control (Zoom-style).",
+  "author": "Empire",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^31.7.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "ai.codnov.empiremeet",
+    "productName": "Empire Meet",
+    "afterPack": "build/afterPack.js",
+    "directories": {
+      "output": "../public/downloads",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      { "from": "injector.py", "to": "injector.py" },
+      { "from": "../agent", "to": "agent", "filter": ["**/*.py"] }
+    ],
+    "artifactName": "Empire-Meet-${version}-${os}-${arch}.${ext}",
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "category": "public.app-category.business",
+      "identity": null
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Network"
+    }
+  }
+}
