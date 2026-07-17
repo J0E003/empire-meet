@@ -5,9 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Empire Meet</title>
   <link rel="stylesheet" href="/style.css" />
+  <style>
+    .account-bar { position: fixed; top: 18px; right: 20px; z-index: 5; display: flex; align-items: center; gap: 10px; }
+    .account-bar .hello { color: var(--muted, #c6cbdc); font-size: 13.5px; }
+    .account-bar .hello b { color: #fff; }
+    .account-bar .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #6d6cf6, #22d3ee); }
+    body.landing { min-height: 100vh; }
+  </style>
 </head>
 <body class="landing">
   <div class="aurora"></div>
+
+  <div id="account-bar" class="account-bar" hidden>
+    <span class="avatar" id="avatar"></span>
+    <span class="hello">Hi, <b id="hello-name"></b></span>
+    <button id="logout" class="btn btn-sm">Log out</button>
+  </div>
   <main class="landing-card">
     <div class="brand">
       <span class="brand-mark">◈</span>
@@ -52,6 +65,27 @@
   <script>
     const $ = (id) => document.getElementById(id);
     let currentPath = null;
+
+    // Require sign-in to reach the home screen (invited guests still join room links directly).
+    (async () => {
+      try {
+        const r = await fetch("/api/me");
+        if (!r.ok) { location.replace("/auth.html?next=" + encodeURIComponent(location.pathname)); return; }
+        const { user } = await r.json();
+        $("hello-name").textContent = (user.name || "").split(" ")[0] || "there";
+        $("avatar").textContent = (user.name || "?").trim().slice(0, 2).toUpperCase();
+        $("account-bar").hidden = false;
+        try { localStorage.setItem("em_name", user.name || ""); } catch {}
+      } catch {
+        location.replace("/auth.html");
+      }
+    })();
+
+    $("logout").addEventListener("click", async () => {
+      try { await fetch("/api/logout", { method: "POST" }); } catch {}
+      try { localStorage.removeItem("em_name"); } catch {}
+      location.replace("/auth.html");
+    });
 
     $("new-meeting").addEventListener("click", async () => {
       $("new-meeting").disabled = true;

@@ -24,6 +24,69 @@ const PORT = Number(process.env.PORT || 3030);
 const MAX_PEERS = Number(process.env.MAX_PEERS || 16); // full-mesh gets heavy past this
 const PUBLIC_DIR = path.join(__dirname, "public");
 
+// ── Accounts / auth (dependency-light: Node crypto + a JSON file) ───────────
+const DATA_DIR = path.join(__dirname, "data");
+const USERS_FILE = path.join(DATA_DIR, "users.json");
+const KEY_FILE = path.join(DATA_DIR, "session.key");
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
+
+// Secret for signing session tokens — generated once and persisted (gitignored).
+let SESSION_SECRET;
+try {
+  SESSION_SECRET = fs.readFileSync(KEY_FILE);
+} catch {
+  SESSION_SECRET = crypto.randomBytes(32);
+  try { fs.writeFileSync(KEY_FILE, SESSION_SECRET, { mode: 0o600 }); } catch {}
+}
+
+const loadUsers = () => { try { return JSON.parse(fs.readFileSync(USERS_FILE, "utf8")); } catch { return []; } };
+const saveUsers = (u) => { try { fs.writeFileSync(USERS_FILE, JSON.stringify(u, null, 2)); } catch (e) { console.error("[auth] save failed:", e.message); } };
+
+function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
+  return { salt, hash: crypto.scryptSync(password, salt, 64).toString("hex") };
+}
+function verifyPassword(password, salt, hash) {
+  const test = crypto.scryptSync(password, salt, 64);
+  const stored = Buffer.from(hash, "hex");
+  return test.length === stored.length && crypto.timingSafeEqual(test, stored);
+}
+function signSession(uid, ttlMs = 30 * 24 * 3600 * 1000) {
+  const payload = Buffer.from(JSON.stringify({ uid, exp: Date.now() + ttlMs })).toString("base64url");
+  const sig = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+  return `${payload}.${sig}`;
+}
+function verifySession(token) {
+  if (!token || !token.includes(".")) return null;
+  const [payload, sig] = token.split(".");
+  const expect = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+  const a = Buffer.from(sig), b = Buffer.from(expect);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString());
+    return data.exp && data.exp > Date.now() ? data.uid : null;
+  } catch { return null; }
+}
+function parseCookies(req) {
+  const out = {};
+  for (const part of (req.headers.cookie || "").split(";")) {
+    const i = part.indexOf("="); if (i < 0) continue;
+    out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return out;
+}
+function readJsonBody(req, limit = 100000) {
+  return new Promise((resolve) => {
+    let data = "", over = false;
+    req.on("data", (c) => { data += c; if (data.length > limit) { over = true; req.destroy(); } });
+    req.on("end", () => { if (over) return resolve(null); try { resolve(JSON.parse(data || "{}")); } catch { resolve(null); } });
+    req.on("error", () => resolve(null));
+  });
+}
+const currentUser = (req) => { const uid = verifySession(parseCookies(req).em_session); return uid ? loadUsers().find((u) => u.id === uid) || null : null; };
+const publicUser = (u) => u && { id: u.id, name: u.name, email: u.email };
+const sessionCookie = (t) => `em_session=${t}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${30 * 24 * 3600}`;
+const sendJson = (res, status, obj) => { res.writeHead(status, { "Content-Type": "application/json" }); res.end(JSON.stringify(obj)); };
+
 // ── ICE servers (STUN always; Twilio TURN if creds are set) ─────────────────
 const TWILIO_SID = (process.env.TWILIO_ACCOUNT_SID || "").trim();
 const TWILIO_TOKEN = (process.env.TWILIO_AUTH_TOKEN || "").trim();
@@ -126,6 +189,44 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(listDownloads()));
     return;
+  }
+
+  // ── Auth API ───────────────────────────────────────────────────────────────
+  if (pathname === "/api/register" && req.method === "POST") {
+    const body = await readJsonBody(req);
+    const name = (body?.name || "").trim().slice(0, 60);
+    const email = (body?.email || "").trim().toLowerCase();
+    const password = body?.password || "";
+    if (!name) return sendJson(res, 400, { error: "Please enter your name." });
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return sendJson(res, 400, { error: "Please enter a valid email." });
+    if (password.length < 6) return sendJson(res, 400, { error: "Password must be at least 6 characters." });
+    const users = loadUsers();
+    if (users.some((u) => u.email === email)) return sendJson(res, 409, { error: "That email already has an account — try signing in." });
+    const { salt, hash } = hashPassword(password);
+    const user = { id: crypto.randomBytes(8).toString("hex"), name, email, salt, hash, createdAt: Date.now() };
+    users.push(user); saveUsers(users);
+    res.writeHead(200, { "Content-Type": "application/json", "Set-Cookie": sessionCookie(signSession(user.id)) });
+    res.end(JSON.stringify({ user: publicUser(user) }));
+    return;
+  }
+  if (pathname === "/api/login" && req.method === "POST") {
+    const body = await readJsonBody(req);
+    const email = (body?.email || "").trim().toLowerCase();
+    const password = body?.password || "";
+    const user = loadUsers().find((u) => u.email === email);
+    if (!user || !verifyPassword(password, user.salt, user.hash)) return sendJson(res, 401, { error: "Wrong email or password." });
+    res.writeHead(200, { "Content-Type": "application/json", "Set-Cookie": sessionCookie(signSession(user.id)) });
+    res.end(JSON.stringify({ user: publicUser(user) }));
+    return;
+  }
+  if (pathname === "/api/logout" && req.method === "POST") {
+    res.writeHead(200, { "Content-Type": "application/json", "Set-Cookie": "em_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0" });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+  if (pathname === "/api/me") {
+    const u = currentUser(req);
+    return u ? sendJson(res, 200, { user: publicUser(u) }) : sendJson(res, 401, { error: "not authenticated" });
   }
   // /room/<id> → the room shell (id read client-side from the path).
   if (pathname.startsWith("/room/")) {

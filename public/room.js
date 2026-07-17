@@ -43,6 +43,15 @@ async function initPreview() {
     $("prejoin-err").hidden = false;
   }
 }
+// Pre-fill the name for signed-in users (guests joining via link can still type one).
+function prefillName() {
+  const input = $("name"); if (!input) return;
+  try { const cached = localStorage.getItem("em_name"); if (cached && !input.value) input.value = cached; } catch {}
+  fetch("/api/me").then((r) => (r.ok ? r.json() : null)).then((d) => {
+    if (d?.user?.name && !input.value.trim()) input.value = d.user.name;
+    if (d?.user?.name) { try { localStorage.setItem("em_name", d.user.name); } catch {} }
+  }).catch(() => {});
+}
 $("pj-mic").addEventListener("click", () => {
   const t = localStream?.getAudioTracks()[0]; if (!t) return;
   t.enabled = !t.enabled;
@@ -584,3 +593,4 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 initPreview();
+prefillName();
