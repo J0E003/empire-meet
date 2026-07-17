@@ -7,6 +7,10 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# The Release step (attaching installers) needs write access to repo contents.
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
