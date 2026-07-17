@@ -22,8 +22,11 @@ const { app, BrowserWindow, ipcMain, session, desktopCapturer, systemPreferences
 const path = require("path");
 const { spawn } = require("child_process");
 
-// Meeting URL: CLI arg wins, then env, then the app can navigate from the landing.
-const MEETING_URL = (process.argv.find((a) => /^https?:\/\//.test(a))) || process.env.EMPIRE_MEET_URL || "http://localhost:3030";
+// Meeting URL: CLI arg wins, then env, then the baked default.
+// NOTE: this default is an ephemeral cloudflare tunnel — replace it with a
+// permanent HTTPS host (e.g. https://meet.yourdomain.com) for a lasting build.
+const DEFAULT_SERVER = "https://tap-ones-competitive-keyboard.trycloudflare.com";
+const MEETING_URL = (process.argv.find((a) => /^https?:\/\//.test(a))) || process.env.EMPIRE_MEET_URL || DEFAULT_SERVER;
 
 // Python discovery differs per OS (Windows usually has `py`/`python`, not `python3`).
 const PY_CANDIDATES = process.env.EMPIRE_PYTHON

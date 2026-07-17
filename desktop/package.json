@@ -1,6 +1,6 @@
 {
   "name": "empire-meet-desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Empire Meet desktop — video meetings with REAL remote control (Zoom-style).",
   "author": "Empire",
   "main": "main.js",
