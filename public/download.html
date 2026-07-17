@@ -109,10 +109,43 @@
       linux: () => "Download AppImage",
     };
 
+    // Permanent installers live on GitHub Releases; classify assets by filename.
+    const REPO = "J0E003/empire-meet";
+    function classify(assets) {
+      const out = { mac: [], win: [], linux: [] };
+      for (const a of assets || []) {
+        const lower = (a.name || "").toLowerCase();
+        if (lower.endsWith(".blockmap")) continue;
+        let bucket = null;
+        if (lower.endsWith(".dmg")) bucket = "mac";
+        else if (lower.endsWith(".exe")) bucket = "win";
+        else if (lower.endsWith(".appimage")) bucket = "linux";
+        else if (lower.endsWith(".zip") && lower.includes("mac")) bucket = "mac";
+        else if (lower.endsWith(".zip") && lower.includes("win")) bucket = "win";
+        if (!bucket) continue;
+        const arch = lower.includes("arm64") ? "Apple Silicon"
+          : (lower.includes("x64") || lower.includes("x86_64")) ? "Intel/x64" : "";
+        out[bucket].push({ name: a.name, url: a.browser_download_url || a.url, size: a.size, arch });
+      }
+      return out;
+    }
+    async function getDownloads() {
+      // 1) permanent GitHub Release links (work even if this server is offline)
+      try {
+        const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: "application/vnd.github+json" } });
+        if (r.ok) {
+          const d = classify((await r.json()).assets);
+          if (d.mac.length || d.win.length || d.linux.length) return d;
+        }
+      } catch {}
+      // 2) fallback: installers served by this meeting server
+      try { return await fetch("/api/downloads").then((r) => r.json()); } catch {}
+      return { mac: [], win: [], linux: [] };
+    }
+
     (async () => {
       const os = detectOS();
-      let data = { mac: [], win: [], linux: [] };
-      try { data = await fetch("/api/downloads").then((r) => r.json()); } catch {}
+      const data = await getDownloads();
 
       for (const os_ of ["mac", "win", "linux"]) {
         const card = document.querySelector(`.dl-card[data-os="${os_}"]`);
@@ -132,7 +165,7 @@
         } else {
           const s = document.createElement("span");
           s.className = "dl-soon";
-          s.innerHTML = "Build coming soon — <a href='https://github.com' style='color:inherit;text-decoration:underline' onclick='return false'>ask the host to publish it</a>";
+          s.innerHTML = "Build coming soon — <a href='https://github.com/J0E003/empire-meet/releases' style='color:inherit;text-decoration:underline' target='_blank' rel='noopener'>see all releases</a>";
           btns.appendChild(s);
         }
         if (os_ === os) {
