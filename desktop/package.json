@@ -1,6 +1,6 @@
 {
   "name": "empire-meet-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Empire Meet desktop — video meetings with REAL remote control (Zoom-style).",
   "author": "Empire",
   "main": "main.js",
@@ -28,22 +28,58 @@
       "preload.js"
     ],
     "extraResources": [
-      { "from": "injector.py", "to": "injector.py" },
-      { "from": "../agent", "to": "agent", "filter": ["**/*.py"] }
+      {
+        "from": "injector.py",
+        "to": "injector.py"
+      },
+      {
+        "from": "../agent",
+        "to": "agent",
+        "filter": [
+          "**/*.py"
+        ]
+      }
     ],
     "artifactName": "Empire-Meet-${version}-${os}-${arch}.${ext}",
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] },
-        { "target": "zip", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "category": "public.app-category.business",
-      "identity": null
+      "identity": null,
+      "extendInfo": {
+        "NSCameraUsageDescription": "Empire Meet uses your camera so other participants can see you.",
+        "NSMicrophoneUsageDescription": "Empire Meet uses your microphone so other participants can hear you.",
+        "NSScreenCaptureUsageDescription": "Empire Meet shares your screen with meeting participants."
+      }
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -53,7 +89,9 @@
       "createDesktopShortcut": true
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Network"
     }
   }

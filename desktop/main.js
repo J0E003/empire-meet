@@ -158,14 +158,15 @@ app.whenReady().then(() => {
   startInjector();
   createWindow();
 
-  // Nudge the macOS permissions up front so control "just works" later.
+  // Nudge the macOS permissions up front so meetings + control "just work".
   if (process.platform === "darwin") {
     try {
-      systemPreferences.isTrustedAccessibilityClient(true); // prompt if needed
-      if (systemPreferences.getMediaAccessStatus("screen") !== "granted") {
-        // Screen Recording can't be prompted programmatically; the first share
-        // triggers the OS prompt. Nothing to do here but note it.
-      }
+      // Explicitly ask for camera + mic from the main process — the renderer's
+      // getUserMedia alone doesn't always surface the macOS TCC prompt.
+      systemPreferences.askForMediaAccess("camera").catch(() => {});
+      systemPreferences.askForMediaAccess("microphone").catch(() => {});
+      systemPreferences.isTrustedAccessibilityClient(true); // Accessibility prompt for real control
+      // Screen Recording can't be prompted programmatically; the first share triggers it.
     } catch {}
   }
 
